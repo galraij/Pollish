@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AppShell, Group, Text, Box, ActionIcon, ScrollArea } from '@mantine/core'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import PollForm from './components/polls/PollForm'
 import './App.css'
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
             <aside className="side-panel">
               {/* Fixed poll creation box */}
               <Box className="create-poll-box" p="md">
-                <Text c="dimmed">[Poll Creation Form Placeholder]</Text>
+                <PollForm />
               </Box>
 
               {/* Scrollable poll list */}

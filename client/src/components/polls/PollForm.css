@@ -1,1 +1,16 @@
-/* PollForm styles */
+/* ── Poll Form ── */
+.poll-form {
+  width: 100%;
+}
+
+.poll-form-radio {
+  flex-shrink: 0;
+}
+
+.add-option-btn {
+  align-self: flex-start;
+}
+
+.submit-btn {
+  letter-spacing: 0.3px;
+}
