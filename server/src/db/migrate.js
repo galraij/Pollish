@@ -38,8 +38,11 @@ const runMigrations = async () => {
     console.error('Error running migrations:', error);
   } finally {
     client.release();
-    process.exit();
   }
 };
 
-runMigrations();
+if (require.main === module) {
+  runMigrations().then(() => process.exit(0));
+}
+
+module.exports = runMigrations;
