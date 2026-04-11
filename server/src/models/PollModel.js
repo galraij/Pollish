@@ -2,55 +2,66 @@ const db = require('../db/connection');
 const { v4: uuidv4 } = require('uuid');
 
 class PollModel {
-  static create({ title, question, createdBy, options }) {
+  static async create({ title, question, createdBy, options }) {
     const pollId = uuidv4();
+    const client = await db.getClient();
 
-    const insertPoll = db.prepare(
-      'INSERT INTO polls (id, title, question, created_by) VALUES (?, ?, ?, ?)'
-    );
-    const insertOption = db.prepare(
-      'INSERT INTO options (id, poll_id, text, position) VALUES (?, ?, ?, ?)'
-    );
+    try {
+      await client.query('BEGIN');
 
-    const transaction = db.transaction(() => {
-      insertPoll.run(pollId, title, question, createdBy);
-      options.forEach((text, index) => {
-        insertOption.run(uuidv4(), pollId, text, index);
-      });
-    });
+      await client.query(
+        'INSERT INTO polls (id, title, question, created_by) VALUES ($1, $2, $3, $4)',
+        [pollId, title, question, createdBy]
+      );
 
-    transaction();
-    return this.findById(pollId);
+      for (let i = 0; i < options.length; i++) {
+        await client.query(
+          'INSERT INTO options (id, poll_id, text, position) VALUES ($1, $2, $3, $4)',
+          [uuidv4(), pollId, options[i], i]
+        );
+      }
+
+      await client.query('COMMIT');
+      return await this.findById(pollId);
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
   }
 
-  static findById(id) {
-    const poll = db.prepare('SELECT * FROM polls WHERE id = ?').get(id);
-    if (!poll) return null;
+  static async findById(id) {
+    const pollResult = await db.query('SELECT * FROM polls WHERE id = $1', [id]);
+    if (pollResult.rows.length === 0) return null;
+    const poll = pollResult.rows[0];
 
-    const options = db.prepare(
-      `SELECT o.id, o.text, o.position, COUNT(v.id) AS vote_count
+    const optionsResult = await db.query(
+      `SELECT o.id, o.text, o.position, COUNT(v.id)::INTEGER AS vote_count
        FROM options o
        LEFT JOIN votes v ON v.option_id = o.id
-       WHERE o.poll_id = ?
+       WHERE o.poll_id = $1
        GROUP BY o.id
-       ORDER BY o.position`
-    ).all(id);
+       ORDER BY o.position`,
+      [id]
+    );
 
+    const options = optionsResult.rows;
     const totalVotes = options.reduce((sum, o) => sum + o.vote_count, 0);
 
     return { ...poll, options, totalVotes };
   }
 
-  static findAll() {
-    const polls = db.prepare(
-      `SELECT p.*, COUNT(DISTINCT v.id) AS totalVotes
+  static async findAll() {
+    const pollsResult = await db.query(
+      `SELECT p.*, COUNT(DISTINCT v.id)::INTEGER AS "totalVotes"
        FROM polls p
        LEFT JOIN votes v ON v.poll_id = p.id
        GROUP BY p.id
        ORDER BY p.created_at DESC`
-    ).all();
+    );
 
-    return polls;
+    return pollsResult.rows;
   }
 }
 

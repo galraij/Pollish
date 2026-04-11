@@ -1,7 +1,7 @@
 const PollModel = require('../models/PollModel');
 
 class PollController {
-  static createPoll(req, res, next) {
+  static async createPoll(req, res, next) {
     try {
       const { title, question, createdBy, options } = req.body;
 
@@ -14,7 +14,7 @@ class PollController {
       const validOptions = options.filter((o) => o && o.trim()).map((o) => o.trim());
       if (validOptions.length < 2) return res.status(400).json({ error: 'At least 2 non-empty options required' });
 
-      const poll = PollModel.create({
+      const poll = await PollModel.create({
         title: title.trim(),
         question: question.trim(),
         createdBy: createdBy.trim(),
@@ -27,17 +27,17 @@ class PollController {
     }
   }
 
-  static getAllPolls(req, res, next) {
+  static async getAllPolls(req, res, next) {
     try {
-      res.json(PollModel.findAll());
+      res.json(await PollModel.findAll());
     } catch (err) {
       next(err);
     }
   }
 
-  static getPollById(req, res, next) {
+  static async getPollById(req, res, next) {
     try {
-      const poll = PollModel.findById(req.params.id);
+      const poll = await PollModel.findById(req.params.id);
       if (!poll) return res.status(404).json({ error: 'Poll not found' });
       res.json(poll);
     } catch (err) {
