@@ -11,10 +11,16 @@ import {
   Box,
 } from '@mantine/core'
 import { IconPlus, IconMinus } from '@tabler/icons-react'
+import { pollService } from '../../services/api'
 import './PollForm.css'
 
-function PollForm() {
+function PollForm({ onPollCreated }) {
+  const [title, setTitle] = useState('')
+  const [username, setUsername] = useState('')
+  const [question, setQuestion] = useState('')
   const [options, setOptions] = useState(['', ''])
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
 
   const addOption = () => {
     if (options.length < 8) {
@@ -30,17 +36,58 @@ function PollForm() {
     setOptions(options.filter((_, i) => i !== index))
   }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+
+    const validOptions = options.filter((o) => o.trim())
+    if (!title.trim() || !username.trim() || !question.trim()) {
+      setError('Please fill in all fields')
+      return
+    }
+    if (validOptions.length < 2) {
+      setError('At least 2 non-empty options required')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const poll = await pollService.create({
+        title: title.trim(),
+        createdBy: username.trim(),
+        question: question.trim(),
+        options: validOptions,
+      })
+
+      // Reset form
+      setTitle('')
+      setUsername('')
+      setQuestion('')
+      setOptions(['', ''])
+
+      if (onPollCreated) onPollCreated(poll)
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to create poll')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
-    <form className="poll-form" onSubmit={(e) => e.preventDefault()}>
+    <form className="poll-form" onSubmit={handleSubmit}>
       <Stack gap="sm">
         <TextInput
           label="Title"
           placeholder="Give your poll a title"
+          value={title}
+          onChange={(e) => setTitle(e.currentTarget.value)}
         />
 
         <TextInput
           label="User Name"
           placeholder="Your name"
+          value={username}
+          onChange={(e) => setUsername(e.currentTarget.value)}
         />
 
         <Textarea
@@ -49,6 +96,8 @@ function PollForm() {
           autosize
           minRows={2}
           maxRows={4}
+          value={question}
+          onChange={(e) => setQuestion(e.currentTarget.value)}
         />
 
         {/* ── Options ── */}
@@ -94,8 +143,10 @@ function PollForm() {
           )}
         </Box>
 
+        {error && <Text size="sm" c="red">{error}</Text>}
+
         {/* ── Submit ── */}
-        <Button type="submit" fullWidth mt="xs" className="submit-btn">
+        <Button type="submit" fullWidth mt="xs" className="submit-btn" loading={submitting}>
           <Text span fw={700}>Poll</Text>
           <Text span>ish it</Text>
         </Button>

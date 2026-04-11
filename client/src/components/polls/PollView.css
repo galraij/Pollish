@@ -1,0 +1,21 @@
+/* ── Poll View ── */
+.poll-view {
+  margin: 0 auto;
+}
+
+.vote-option {
+  padding: 10px 14px;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.vote-option:hover {
+  border-color: var(--mantine-color-blue-4);
+  background: var(--mantine-color-blue-light);
+}
+
+.vote-radio {
+  pointer-events: none;
+}
