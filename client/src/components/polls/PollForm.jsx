@@ -22,6 +22,10 @@ function PollForm() {
     }
   }
 
+  const updateOption = (index, value) => {
+    setOptions(options.map((opt, i) => (i === index ? value : opt)))
+  }
+
   const removeOption = (index) => {
     setOptions(options.filter((_, i) => i !== index))
   }
@@ -52,11 +56,13 @@ function PollForm() {
           <Text size="sm" fw={500} mb={4}>Options</Text>
 
           <Stack gap="xs">
-            {options.map((_, index) => (
+            {options.map((optValue, index) => (
               <Group key={index} gap="xs" wrap="nowrap">
                 <Radio value={String(index)} disabled className="poll-form-radio" />
                 <TextInput
                   placeholder={`Option ${index + 1}`}
+                  value={optValue}
+                  onChange={(e) => updateOption(index, e.currentTarget.value)}
                   style={{ flex: 1 }}
                 />
                 {index >= 2 && (
