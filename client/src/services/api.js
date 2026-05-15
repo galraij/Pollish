@@ -29,8 +29,8 @@ export const pollService = {
 
 // ── Vote API ──
 export const voteService = {
-  cast: ({ pollId, optionId }) =>
-    api.post('/votes', { pollId, optionId, voterId: getVoterId() }).then((r) => r.data),
+  cast: ({ pollId, optionIds }) =>
+    api.post('/votes', { pollId, optionIds, voterId: getVoterId() }).then((r) => r.data),
   check: (pollId) =>
     api.get(`/votes/check/${pollId}/${getVoterId()}`).then((r) => r.data),
 };

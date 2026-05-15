@@ -2,14 +2,14 @@ import { Text, Stack, Progress, Group, Box } from '@mantine/core'
 import { useLang } from '../../i18n'
 import './PollResults.css'
 
-function PollResults({ options, totalVotes, votedOptionId, pollLanguage }) {
+function PollResults({ options, totalVotes, votedOptionIds, pollLanguage }) {
   const { t } = useLang()
 
   return (
     <Stack gap="xs">
       {options.map((opt) => {
         const pct = totalVotes > 0 ? Math.round((opt.vote_count / totalVotes) * 100) : 0
-        const isVoted = opt.id === votedOptionId
+        const isVoted = Array.isArray(votedOptionIds) ? votedOptionIds.includes(opt.id) : opt.id === votedOptionIds
 
         return (
           <Box key={opt.id} className={`result-row ${isVoted ? 'result-row--voted' : ''}`}>

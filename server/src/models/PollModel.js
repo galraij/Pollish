@@ -2,16 +2,19 @@ const db = require('../db/connection');
 const { v4: uuidv4 } = require('uuid');
 
 class PollModel {
-  static async create({ title, question, createdBy, options, language = 'en' }) {
+  static async create({ question, options, language = 'en', isMultipleChoice = false, minSelections = 1, maxSelections = 1 }) {
     const pollId = uuidv4();
     const client = await db.getClient();
+    // Default system values for dropped UI fields
+    const title = null;
+    const createdBy = 'Anonymous';
 
     try {
       await client.query('BEGIN');
 
       await client.query(
-        'INSERT INTO polls (id, title, question, created_by, language) VALUES ($1, $2, $3, $4, $5)',
-        [pollId, title, question, createdBy, language]
+        'INSERT INTO polls (id, title, question, created_by, language, is_multiple_choice, min_selections, max_selections) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        [pollId, title, question, createdBy, language, isMultipleChoice, minSelections, maxSelections]
       );
 
       for (let i = 0; i < options.length; i++) {

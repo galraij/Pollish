@@ -31,6 +31,11 @@ const translations = {
     noMorePolls: 'No more polls to show',
     createPoll: 'Create Poll',
     swipeToSkip: 'Swipe to skip',
+    useCheckboxes: 'Allow multiple selections',
+    minSelections: 'Minimum selections',
+    maxSelections: 'Maximum selections',
+    submitVote: 'Submit Vote',
+    selectionLimitError: 'Select between {min} and {max} options',
     toggleLang: 'עב',
   },
   he: {
@@ -63,6 +68,11 @@ const translations = {
     noMorePolls: 'אין עוד סקרים להצגה',
     createPoll: 'צור סקר',
     swipeToSkip: 'החליקו לדילוג',
+    useCheckboxes: 'אפשר בחירה מרובה',
+    minSelections: 'מינימום בחירות',
+    maxSelections: 'מקסימום בחירות',
+    submitVote: 'הצבע/י',
+    selectionLimitError: 'יש לבחור בין {min} ל-{max} אפשרויות',
     toggleLang: 'EN',
   },
 }
