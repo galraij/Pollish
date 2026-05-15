@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
-import { AppShell, Group, Text, Box, ActionIcon, ScrollArea } from '@mantine/core'
+import { AppShell, Group, Text, Box, ActionIcon, ScrollArea, Button } from '@mantine/core'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import PollForm from './components/polls/PollForm'
 import PollView from './components/polls/PollView'
 import PollCard from './components/polls/PollCard'
 import { pollService } from './services/api'
+import { useLang } from './i18n'
 import './App.css'
 
 function App() {
@@ -13,25 +14,34 @@ function App() {
   const isDirectPollUrl = location.pathname.startsWith('/poll/')
   const [panelOpen, setPanelOpen] = useState(!isDirectPollUrl)
   const [polls, setPolls] = useState([])
+  const { lang, setLang, t, dir, isRTL } = useLang()
 
   const loadPolls = useCallback(async () => {
     try {
-      const data = await pollService.getAll()
+      const data = await pollService.getAll(lang)
       setPolls(data)
     } catch (err) {
       console.error('Failed to load polls:', err)
     }
-  }, [])
+  }, [lang])
 
   useEffect(() => {
     loadPolls()
   }, [loadPolls])
 
+  const toggleLang = () => {
+    setLang(lang === 'en' ? 'he' : 'en')
+  }
+
+  /* Determine chevron icons based on direction and panel state */
+  const PanelOpenIcon = isRTL ? IconChevronRight : IconChevronLeft
+  const PanelClosedIcon = isRTL ? IconChevronLeft : IconChevronRight
+
   return (
-    <AppShell header={{ height: 56 }} padding={0}>
+    <AppShell header={{ height: 56 }} padding={0} dir={dir}>
       {/* ── Header ── */}
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" px="md" justify="space-between">
           <Text
             size="xl"
             component="a"
@@ -39,15 +49,28 @@ function App() {
             onClick={(e) => { e.preventDefault(); window.location.href = '/' }}
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            <Text span fw={700}>Poll</Text>ish
+            {lang === 'en' ? (
+              <><Text span fw={700}>Poll</Text>ish</>
+            ) : (
+              <Text span fw={700}>{t('appName')}</Text>
+            )}
           </Text>
+
+          <Button
+            variant="subtle"
+            size="compact-sm"
+            onClick={toggleLang}
+            className="lang-toggle"
+          >
+            {t('toggleLang')}
+          </Button>
         </Group>
       </AppShell.Header>
 
       {/* ── Body ── */}
       <AppShell.Main style={{ height: '100%' }}>
-        <div className="app-layout">
-          {/* ── Left Panel ── */}
+        <div className="app-layout" dir={dir}>
+          {/* ── Side Panel ── */}
           {panelOpen && (
             <aside className="side-panel">
               <Box className="create-poll-box" p="md">
@@ -57,7 +80,7 @@ function App() {
               <ScrollArea className="poll-list-scroll" type="auto">
                 <Box p="md" className="poll-list">
                   {polls.length === 0 ? (
-                    <Text size="sm" c="dimmed" ta="center">No polls yet</Text>
+                    <Text size="sm" c="dimmed" ta="center">{t('noPolls')}</Text>
                   ) : (
                     <PollListItems polls={polls} />
                   )}
@@ -72,10 +95,10 @@ function App() {
               variant="default"
               size="md"
               onClick={() => setPanelOpen((o) => !o)}
-              aria-label={panelOpen ? 'Hide panel' : 'Show panel'}
+              aria-label={panelOpen ? t('hidePanel') : t('showPanel')}
               className="toggle-btn"
             >
-              {panelOpen ? <IconChevronLeft size={16} /> : <IconChevronRight size={16} />}
+              {panelOpen ? <PanelOpenIcon size={16} /> : <PanelClosedIcon size={16} />}
             </ActionIcon>
           </div>
 
@@ -83,7 +106,7 @@ function App() {
           <main className="main-content">
             <Routes>
               <Route path="/" element={
-                <Text c="dimmed">Create a poll or select one from the panel</Text>
+                <Text c="dimmed">{t('createOrSelect')}</Text>
               } />
               <Route path="/poll/:id" element={
                 <PollViewRoute onPollUpdated={loadPolls} />

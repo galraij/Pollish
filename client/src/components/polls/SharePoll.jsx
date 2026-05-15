@@ -1,7 +1,9 @@
 import { TextInput, ActionIcon, Group, CopyButton, Tooltip } from '@mantine/core'
 import { IconCopy, IconCheck } from '@tabler/icons-react'
+import { useLang } from '../../i18n'
 
 function SharePoll({ pollId }) {
+  const { t } = useLang()
   const url = `${window.location.origin}/poll/${pollId}`
 
   return (
@@ -14,7 +16,7 @@ function SharePoll({ pollId }) {
       />
       <CopyButton value={url} timeout={2000}>
         {({ copied, copy }) => (
-          <Tooltip label={copied ? 'Copied!' : 'Copy link'} withArrow>
+          <Tooltip label={copied ? t('copied') : t('copyLink')} withArrow>
             <ActionIcon
               color={copied ? 'teal' : 'gray'}
               variant="subtle"

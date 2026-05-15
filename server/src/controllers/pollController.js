@@ -3,7 +3,7 @@ const PollModel = require('../models/PollModel');
 class PollController {
   static async createPoll(req, res, next) {
     try {
-      const { title, question, createdBy, options } = req.body;
+      const { title, question, createdBy, options, language } = req.body;
 
       if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
       if (!question || !question.trim()) return res.status(400).json({ error: 'Question is required' });
@@ -19,6 +19,7 @@ class PollController {
         question: question.trim(),
         createdBy: createdBy.trim(),
         options: validOptions,
+        language: language || 'en',
       });
 
       res.status(201).json(poll);
@@ -29,7 +30,8 @@ class PollController {
 
   static async getAllPolls(req, res, next) {
     try {
-      res.json(await PollModel.findAll());
+      const { language } = req.query;
+      res.json(await PollModel.findAll(language));
     } catch (err) {
       next(err);
     }

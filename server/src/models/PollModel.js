@@ -2,7 +2,7 @@ const db = require('../db/connection');
 const { v4: uuidv4 } = require('uuid');
 
 class PollModel {
-  static async create({ title, question, createdBy, options }) {
+  static async create({ title, question, createdBy, options, language = 'en' }) {
     const pollId = uuidv4();
     const client = await db.getClient();
 
@@ -10,8 +10,8 @@ class PollModel {
       await client.query('BEGIN');
 
       await client.query(
-        'INSERT INTO polls (id, title, question, created_by) VALUES ($1, $2, $3, $4)',
-        [pollId, title, question, createdBy]
+        'INSERT INTO polls (id, title, question, created_by, language) VALUES ($1, $2, $3, $4, $5)',
+        [pollId, title, question, createdBy, language]
       );
 
       for (let i = 0; i < options.length; i++) {
@@ -52,15 +52,20 @@ class PollModel {
     return { ...poll, options, totalVotes };
   }
 
-  static async findAll() {
-    const pollsResult = await db.query(
-      `SELECT p.*, COUNT(DISTINCT v.id)::INTEGER AS "totalVotes"
+  static async findAll(language) {
+    let query = `SELECT p.*, COUNT(DISTINCT v.id)::INTEGER AS "totalVotes"
        FROM polls p
-       LEFT JOIN votes v ON v.poll_id = p.id
-       GROUP BY p.id
-       ORDER BY p.created_at DESC`
-    );
+       LEFT JOIN votes v ON v.poll_id = p.id`;
+    const params = [];
 
+    if (language) {
+      query += ' WHERE p.language = $1';
+      params.push(language);
+    }
+
+    query += ' GROUP BY p.id ORDER BY p.created_at DESC';
+
+    const pollsResult = await db.query(query, params);
     return pollsResult.rows;
   }
 }

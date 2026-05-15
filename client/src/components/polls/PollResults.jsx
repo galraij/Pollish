@@ -1,7 +1,10 @@
 import { Text, Stack, Progress, Group, Box } from '@mantine/core'
+import { useLang } from '../../i18n'
 import './PollResults.css'
 
-function PollResults({ options, totalVotes, votedOptionId }) {
+function PollResults({ options, totalVotes, votedOptionId, pollLanguage }) {
+  const { t } = useLang()
+
   return (
     <Stack gap="xs">
       {options.map((opt) => {
@@ -23,8 +26,8 @@ function PollResults({ options, totalVotes, votedOptionId }) {
           </Box>
         )
       })}
-      <Text size="xs" c="dimmed" ta="right" mt="xs">
-        {totalVotes} total vote{totalVotes !== 1 ? 's' : ''}
+      <Text size="xs" c="dimmed" ta={pollLanguage === 'he' ? 'left' : 'right'} mt="xs">
+        {totalVotes} {totalVotes !== 1 ? t('totalVotes') : t('totalVote')}
       </Text>
     </Stack>
   )

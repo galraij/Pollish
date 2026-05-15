@@ -12,7 +12,7 @@
   max-width: 420px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--mantine-color-default-border);
+  border-inline-end: 1px solid var(--mantine-color-default-border);
   background: var(--mantine-color-body);
 }
 
@@ -39,9 +39,14 @@
   flex-shrink: 0;
 }
 
-.toggle-btn {
+[dir="ltr"] .toggle-btn {
   border-radius: 0 var(--mantine-radius-sm) var(--mantine-radius-sm) 0;
   border-left: none;
+}
+
+[dir="rtl"] .toggle-btn {
+  border-radius: var(--mantine-radius-sm) 0 0 var(--mantine-radius-sm);
+  border-right: none;
 }
 
 /* ── Main Content ── */
@@ -51,4 +56,10 @@
   align-items: center;
   justify-content: center;
   padding: var(--mantine-spacing-md);
+}
+
+/* ── Language Toggle ── */
+.lang-toggle {
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }

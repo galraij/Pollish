@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Text, Stack, Radio, Card, Loader, Center, Box } from '@mantine/core'
 import { pollService, voteService } from '../../services/api'
+import { useLang } from '../../i18n'
 import PollResults from './PollResults'
 import SharePoll from './SharePoll'
 import './PollView.css'
 
 function PollView({ pollId, onPollUpdated }) {
+  const { t } = useLang()
   const [poll, setPoll] = useState(null)
   const [loading, setLoading] = useState(true)
   const [hasVoted, setHasVoted] = useState(false)
@@ -54,15 +56,18 @@ function PollView({ pollId, onPollUpdated }) {
   }
 
   if (!poll) {
-    return <Text c="dimmed" ta="center">Poll not found</Text>
+    return <Text c="dimmed" ta="center">{t('pollNotFound')}</Text>
   }
 
+  // Poll content renders in the direction of its assigned language
+  const pollDir = poll.language === 'he' ? 'rtl' : 'ltr'
+
   return (
-    <Card className="poll-view" shadow="sm" radius="md" withBorder p="lg" maw={560} w="100%">
+    <Card className="poll-view" shadow="sm" radius="md" withBorder p="lg" maw={560} w="100%" dir={pollDir}>
       <Stack gap="md">
         <Box>
           <Text size="lg" fw={600}>{poll.title}</Text>
-          <Text size="xs" c="dimmed">by {poll.created_by}</Text>
+          <Text size="xs" c="dimmed">{t('by')} {poll.created_by}</Text>
         </Box>
 
         <Text size="md">{poll.question}</Text>
@@ -72,6 +77,7 @@ function PollView({ pollId, onPollUpdated }) {
             options={poll.options}
             totalVotes={poll.totalVotes}
             votedOptionId={votedOptionId}
+            pollLanguage={poll.language}
           />
         ) : (
           <Stack gap="xs">

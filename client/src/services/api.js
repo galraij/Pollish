@@ -23,7 +23,7 @@ export function getVoterId() {
 // ── Poll API ──
 export const pollService = {
   create: (data) => api.post('/polls', data).then((r) => r.data),
-  getAll: () => api.get('/polls').then((r) => r.data),
+  getAll: (language) => api.get('/polls', { params: { language } }).then((r) => r.data),
   getById: (id) => api.get(`/polls/${id}`).then((r) => r.data),
 };
 

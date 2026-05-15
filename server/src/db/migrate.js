@@ -13,6 +13,7 @@ const runMigrations = async () => {
         title TEXT NOT NULL,
         question TEXT NOT NULL,
         created_by TEXT NOT NULL,
+        language TEXT NOT NULL DEFAULT 'en',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -31,6 +32,9 @@ const runMigrations = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(poll_id, voter_id)
       );
+
+      -- Add language column to existing tables that don't have it yet
+      ALTER TABLE polls ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'en';
     `);
 
     console.log('✅ Migrations complete.');

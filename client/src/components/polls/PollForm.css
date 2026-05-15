@@ -11,6 +11,10 @@
   align-self: flex-start;
 }
 
+[dir="rtl"] .add-option-btn {
+  align-self: flex-end;
+}
+
 .submit-btn {
   letter-spacing: 0.3px;
 }
