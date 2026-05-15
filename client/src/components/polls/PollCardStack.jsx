@@ -191,7 +191,7 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
         onClick={goPrev}
         aria-label={t('swipeToSkip')}
       >
-        <IconChevronLeft size={28} />
+        <IconChevronRight size={28} />
       </ActionIcon>
 
       <div
@@ -217,7 +217,7 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
         onClick={goNext}
         aria-label={t('swipeToSkip')}
       >
-        <IconChevronRight size={28} />
+        <IconChevronLeft size={28} />
       </ActionIcon>
     </div>
   )

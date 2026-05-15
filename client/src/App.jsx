@@ -107,8 +107,11 @@ function App() {
         title={t('createPoll')}
         size="md"
         centered
+        dir={dir}
       >
-        <PollForm onPollCreated={handlePollCreated} />
+        <div dir={dir}>
+          <PollForm onPollCreated={handlePollCreated} />
+        </div>
       </Modal>
     </AppShell>
   )
