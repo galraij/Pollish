@@ -7,7 +7,7 @@ import SharePoll from './SharePoll'
 import './PollView.css'
 
 function PollView({ pollId, onPollUpdated }) {
-  const { t } = useLang()
+  const { t, setLang } = useLang()
   const [poll, setPoll] = useState(null)
   const [loading, setLoading] = useState(true)
   const [hasVoted, setHasVoted] = useState(false)
@@ -34,6 +34,13 @@ function PollView({ pollId, onPollUpdated }) {
     setLoading(true)
     loadPoll()
   }, [loadPoll])
+
+  // When arriving via direct link, sync UI language to the poll's language
+  useEffect(() => {
+    if (poll?.language) {
+      setLang(poll.language)
+    }
+  }, [poll?.language, setLang])
 
   const handleVote = async (optionId) => {
     if (hasVoted || voting) return
