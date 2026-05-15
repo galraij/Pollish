@@ -22,6 +22,8 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
   const [isDragging, setIsDragging] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
   const [exitDirection, setExitDirection] = useState(0)
+  const [isEntering, setIsEntering] = useState(false)
+  const [enterDirection, setEnterDirection] = useState(0)
 
   const startXRef = useRef(0)
   const draggingRef = useRef(false)
@@ -49,7 +51,7 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
   }, [polls.length])
 
   const triggerSwipe = useCallback((direction, newIndex) => {
-    if (isExiting) return
+    if (isExiting || isEntering) return
     setExitDirection(direction)
     setIsExiting(true)
     setDragOffset(0)
@@ -58,8 +60,17 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
       setCurrentIndex(newIndex)
       setIsExiting(false)
       setExitDirection(0)
+      
+      setIsEntering(true)
+      setEnterDirection(-direction) // enter from opposite side
+      
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsEntering(false)
+        })
+      })
     }, 300)
-  }, [isExiting])
+  }, [isExiting, isEntering])
 
   const goNext = useCallback(() => {
     triggerSwipe(-1, wrapIndex(currentIndex + 1))
@@ -81,7 +92,7 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
 
   // ── Touch handlers ──
   const handleTouchStart = (e) => {
-    if (isExiting) return
+    if (isExiting || isEntering) return
     startXRef.current = e.touches[0].clientX
     draggingRef.current = true
     setIsDragging(true)
@@ -103,7 +114,7 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
 
   // ── Mouse handlers ──
   const handleMouseDown = (e) => {
-    if (isExiting) return
+    if (isExiting || isEntering) return
     e.preventDefault()
     startXRef.current = e.clientX
     draggingRef.current = true
@@ -165,6 +176,12 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
       return {
         transform: `translateX(${exitDirection * 120}vw) rotate(${exitDirection * 15}deg)`,
         transition: 'transform 0.3s ease-in',
+      }
+    }
+    if (isEntering) {
+      return {
+        transform: `translateX(${enterDirection * 120}vw) rotate(${enterDirection * 15}deg)`,
+        transition: 'none',
       }
     }
     if (isDragging) {
