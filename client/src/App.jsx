@@ -1,20 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
-import { AppShell, Group, Text, Box, ActionIcon, ScrollArea, Button } from '@mantine/core'
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { AppShell, Group, Text, Button, ActionIcon, Modal } from '@mantine/core'
+import { IconPlus } from '@tabler/icons-react'
 import PollForm from './components/polls/PollForm'
-import PollView from './components/polls/PollView'
-import PollCard from './components/polls/PollCard'
+import PollCardStack from './components/polls/PollCardStack'
 import { pollService } from './services/api'
 import { useLang } from './i18n'
 import './App.css'
 
 function App() {
   const location = useLocation()
-  const isDirectPollUrl = location.pathname.startsWith('/poll/')
-  const [panelOpen, setPanelOpen] = useState(!isDirectPollUrl)
+  const navigate = useNavigate()
   const [polls, setPolls] = useState([])
-  const { lang, setLang, t, dir, isRTL } = useLang()
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const { lang, setLang, t, dir } = useLang()
+
+  // Extract poll ID from URL
+  const match = location.pathname.match(/\/poll\/(.+)/)
+  const directPollId = match ? match[1] : null
 
   const loadPolls = useCallback(async () => {
     try {
@@ -33,9 +36,15 @@ function App() {
     setLang(lang === 'en' ? 'he' : 'en')
   }
 
-  /* Determine chevron icons based on direction and panel state */
-  const PanelOpenIcon = isRTL ? IconChevronRight : IconChevronLeft
-  const PanelClosedIcon = isRTL ? IconChevronLeft : IconChevronRight
+  const handlePollCreated = (poll) => {
+    setCreateModalOpen(false)
+    loadPolls()
+    navigate(`/poll/${poll.id}`, { replace: true })
+  }
+
+  const handleIndexChange = useCallback((pollId) => {
+    navigate(`/poll/${pollId}`, { replace: true })
+  }, [navigate])
 
   return (
     <AppShell header={{ height: 56 }} padding={0} dir={dir}>
@@ -46,7 +55,7 @@ function App() {
             size="xl"
             component="a"
             href="/"
-            onClick={(e) => { e.preventDefault(); window.location.href = '/' }}
+            onClick={(e) => { e.preventDefault(); navigate('/', { replace: true }); }}
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
             {lang === 'en' ? (
@@ -56,110 +65,53 @@ function App() {
             )}
           </Text>
 
-          <Button
-            variant="subtle"
-            size="compact-sm"
-            onClick={toggleLang}
-            className="lang-toggle"
-          >
-            {t('toggleLang')}
-          </Button>
+          <Group gap="xs">
+            <ActionIcon
+              variant="filled"
+              size="md"
+              onClick={() => setCreateModalOpen(true)}
+              aria-label={t('createPoll')}
+              className="create-btn"
+            >
+              <IconPlus size={18} />
+            </ActionIcon>
+
+            <Button
+              variant="subtle"
+              size="compact-sm"
+              onClick={toggleLang}
+              className="lang-toggle"
+            >
+              {t('toggleLang')}
+            </Button>
+          </Group>
         </Group>
       </AppShell.Header>
 
       {/* ── Body ── */}
       <AppShell.Main style={{ height: '100%' }}>
         <div className="app-layout" dir={dir}>
-          {/* ── Side Panel ── */}
-          {panelOpen && (
-            <aside className="side-panel">
-              <Box className="create-poll-box" p="md">
-                <PollFormWrapper onPollCreated={loadPolls} />
-              </Box>
-
-              <ScrollArea className="poll-list-scroll" type="auto">
-                <Box p="md" className="poll-list">
-                  {polls.length === 0 ? (
-                    <Text size="sm" c="dimmed" ta="center">{t('noPolls')}</Text>
-                  ) : (
-                    <PollListItems polls={polls} />
-                  )}
-                </Box>
-              </ScrollArea>
-            </aside>
-          )}
-
-          {/* ── Toggle Notch ── */}
-          <div className="panel-toggle">
-            <ActionIcon
-              variant="default"
-              size="md"
-              onClick={() => setPanelOpen((o) => !o)}
-              aria-label={panelOpen ? t('hidePanel') : t('showPanel')}
-              className="toggle-btn"
-            >
-              {panelOpen ? <PanelOpenIcon size={16} /> : <PanelClosedIcon size={16} />}
-            </ActionIcon>
-          </div>
-
-          {/* ── Main Content ── */}
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={
-                <Text c="dimmed">{t('createOrSelect')}</Text>
-              } />
-              <Route path="/poll/:id" element={
-                <PollViewRoute onPollUpdated={loadPolls} />
-              } />
-            </Routes>
-          </main>
+          <PollCardStack
+            polls={polls}
+            initialPollId={directPollId}
+            onPollUpdated={loadPolls}
+            onIndexChange={handleIndexChange}
+          />
         </div>
       </AppShell.Main>
+
+      {/* ── Create Poll Modal ── */}
+      <Modal
+        opened={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title={t('createPoll')}
+        size="md"
+        centered
+      >
+        <PollForm onPollCreated={handlePollCreated} />
+      </Modal>
     </AppShell>
   )
-}
-
-/* Wrapper so PollForm can navigate after creation */
-function PollFormWrapper({ onPollCreated }) {
-  const navigate = useNavigate()
-
-  const handleCreated = (poll) => {
-    onPollCreated()
-    navigate(`/poll/${poll.id}`)
-  }
-
-  return <PollForm onPollCreated={handleCreated} />
-}
-
-/* Renders PollCard list with navigation */
-function PollListItems({ polls }) {
-  const navigate = useNavigate()
-  const params = useParams()
-  const location = useLocation()
-
-  // Extract current poll ID from URL
-  const match = location.pathname.match(/\/poll\/(.+)/)
-  const activePollId = match ? match[1] : null
-
-  return (
-    <>
-      {polls.map((poll) => (
-        <Box key={poll.id} mb="xs">
-          <PollCard
-            poll={poll}
-            isActive={poll.id === activePollId}
-            onClick={() => navigate(`/poll/${poll.id}`)}
-          />
-        </Box>
-      ))}
-    </>
-  )
-}
-
-/* Route wrapper that extracts pollId from URL params */
-function PollViewRoute({ onPollUpdated }) {
-  const { id } = useParams()
-  return <PollView pollId={id} onPollUpdated={onPollUpdated} />
 }
 
 export default App

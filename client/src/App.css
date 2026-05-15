@@ -1,65 +1,19 @@
 /* ── App Layout ── */
 .app-layout {
-  display: flex;
-  height: calc(100vh - 56px); /* full height minus header */
-  position: relative;
-}
-
-/* ── Side Panel (1/3 of viewport) ── */
-.side-panel {
-  width: 33.333%;
-  min-width: 280px;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  border-inline-end: 1px solid var(--mantine-color-default-border);
-  background: var(--mantine-color-body);
-}
-
-.create-poll-box {
-  flex-shrink: 0;
-  border-bottom: 1px solid var(--mantine-color-default-border);
-}
-
-.poll-list-scroll {
-  flex: 1;
-  min-height: 0;
-}
-
-.poll-list-item {
-  border: 1px solid var(--mantine-color-default-border);
-  border-radius: var(--mantine-radius-sm);
-}
-
-/* ── Toggle Notch ── */
-.panel-toggle {
-  display: flex;
-  align-items: flex-start;
-  padding-top: 12px;
-  flex-shrink: 0;
-}
-
-[dir="ltr"] .toggle-btn {
-  border-radius: 0 var(--mantine-radius-sm) var(--mantine-radius-sm) 0;
-  border-left: none;
-}
-
-[dir="rtl"] .toggle-btn {
-  border-radius: var(--mantine-radius-sm) 0 0 var(--mantine-radius-sm);
-  border-right: none;
-}
-
-/* ── Main Content ── */
-.main-content {
-  flex: 1;
+  height: calc(100vh - 56px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--mantine-spacing-md);
+  overflow: hidden;
 }
 
 /* ── Language Toggle ── */
 .lang-toggle {
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+/* ── Create Button ── */
+.create-btn {
+  border-radius: 50%;
 }

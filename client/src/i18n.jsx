@@ -28,6 +28,9 @@ const translations = {
     copied: 'Copied!',
     hidePanel: 'Hide panel',
     showPanel: 'Show panel',
+    noMorePolls: 'No more polls to show',
+    createPoll: 'Create Poll',
+    swipeToSkip: 'Swipe to skip',
     toggleLang: 'עב',
   },
   he: {
@@ -57,6 +60,9 @@ const translations = {
     copied: 'הועתק!',
     hidePanel: 'הסתירו חלונית',
     showPanel: 'הציגו חלונית',
+    noMorePolls: 'אין עוד סקרים להצגה',
+    createPoll: 'צור סקר',
+    swipeToSkip: 'החליקו לדילוג',
     toggleLang: 'EN',
   },
 }
