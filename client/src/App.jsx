@@ -50,7 +50,7 @@ function App() {
     <AppShell header={{ height: 56 }} padding={0} dir={dir}>
       {/* ── Header ── */}
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
+        <Group className="app-header-content" h="100%" px="md" justify="space-between">
           <Text
             size="xl"
             component="a"

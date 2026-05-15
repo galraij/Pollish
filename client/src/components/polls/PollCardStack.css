@@ -1,7 +1,7 @@
 /* ── Card Stack ── */
 .card-stack {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   height: 100%;
@@ -10,6 +10,7 @@
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  gap: var(--mantine-spacing-xs);
 }
 
 .card-stack__card {
@@ -18,14 +19,15 @@
   will-change: transform;
   touch-action: pan-y;
   cursor: grab;
+  flex: 1;
 }
 
 .card-stack__card:active {
   cursor: grabbing;
 }
 
-/* ── Counter ── */
-.card-stack__counter {
-  margin-top: var(--mantine-spacing-md);
-  text-align: center;
+.card-stack__arrow {
+  flex-shrink: 0;
+  z-index: 2;
 }
+
