@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Text, Center } from '@mantine/core'
+import { Text, Center, ActionIcon } from '@mantine/core'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import { useLang } from '../../i18n'
 import PollView from './PollView'
 import './PollCardStack.css'
@@ -26,7 +27,7 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
   const draggingRef = useRef(false)
   const dragOffsetRef = useRef(0)
 
-  // Sync index when initialPollId or polls change (e.g. after creating a poll)
+  // Sync index when initialPollId or polls change
   useEffect(() => {
     if (initialPollId && polls.length > 0) {
       const idx = polls.findIndex((p) => p.id === initialPollId)
@@ -41,18 +42,11 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
     }
   }, [currentIndex, polls, onIndexChange])
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'ArrowLeft') {
-        if (currentIndex > 0) triggerSwipe(1, currentIndex - 1)
-      } else if (e.key === 'ArrowRight') {
-        if (currentIndex < polls.length - 1) triggerSwipe(-1, currentIndex + 1)
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [currentIndex, polls.length, isExiting])
+  // Looping helper: wraps index around the polls array
+  const wrapIndex = useCallback((i) => {
+    if (polls.length === 0) return 0
+    return ((i % polls.length) + polls.length) % polls.length
+  }, [polls.length])
 
   const triggerSwipe = useCallback((direction, newIndex) => {
     if (isExiting) return
@@ -66,6 +60,24 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
       setExitDirection(0)
     }, 300)
   }, [isExiting])
+
+  const goNext = useCallback(() => {
+    triggerSwipe(-1, wrapIndex(currentIndex + 1))
+  }, [currentIndex, triggerSwipe, wrapIndex])
+
+  const goPrev = useCallback(() => {
+    triggerSwipe(1, wrapIndex(currentIndex - 1))
+  }, [currentIndex, triggerSwipe, wrapIndex])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'ArrowLeft') goPrev()
+      else if (e.key === 'ArrowRight') goNext()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [goNext, goPrev])
 
   // ── Touch handlers ──
   const handleTouchStart = (e) => {
@@ -118,14 +130,8 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
   // ── Resolve swipe direction ──
   const resolveSwipe = (offset) => {
     if (Math.abs(offset) > SWIPE_THRESHOLD) {
-      const swipedLeft = offset < 0
-      if (swipedLeft && currentIndex < polls.length - 1) {
-        triggerSwipe(-1, currentIndex + 1)
-      } else if (!swipedLeft && currentIndex > 0) {
-        triggerSwipe(1, currentIndex - 1)
-      } else {
-        setDragOffset(0)
-      }
+      if (offset < 0) goNext()
+      else goPrev()
     } else {
       setDragOffset(0)
     }
@@ -177,6 +183,17 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
 
   return (
     <div className="card-stack">
+      {/* Left arrow */}
+      <ActionIcon
+        variant="subtle"
+        size="xl"
+        className="card-stack__arrow card-stack__arrow--left"
+        onClick={goPrev}
+        aria-label={t('swipeToSkip')}
+      >
+        <IconChevronLeft size={28} />
+      </ActionIcon>
+
       <div
         className="card-stack__card"
         style={getCardStyle()}
@@ -192,12 +209,16 @@ function PollCardStack({ polls, initialPollId, onPollUpdated, onIndexChange }) {
         />
       </div>
 
-      {/* Counter */}
-      <div className="card-stack__counter">
-        <Text size="sm" c="dimmed">
-          {currentIndex + 1} / {polls.length}
-        </Text>
-      </div>
+      {/* Right arrow */}
+      <ActionIcon
+        variant="subtle"
+        size="xl"
+        className="card-stack__arrow card-stack__arrow--right"
+        onClick={goNext}
+        aria-label={t('swipeToSkip')}
+      >
+        <IconChevronRight size={28} />
+      </ActionIcon>
     </div>
   )
 }
