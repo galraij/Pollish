@@ -41,8 +41,8 @@ export const voteService = {
 
 // ── Auth API ──
 export const authService = {
-  login: (idToken) =>
-    api.post('/auth/login', { idToken, anonymousVoterId: getVoterId() }).then((r) => r.data),
+  login: (idToken, anonymousVoterId) =>
+    api.post('/auth/login', { idToken, anonymousVoterId: anonymousVoterId || getVoterId() }).then((r) => r.data),
 };
 
 export default api;

@@ -56,6 +56,10 @@ export default function LoginModal({ opened, onClose }) {
     setError('');
     setLoading(true);
     try {
+      // Capture the anonymous voter ID BEFORE confirming the OTP.
+      // Once confirmed, Firebase immediately updates AuthContext which overrides the ID in localStorage.
+      const anonymousId = localStorage.getItem('pollish_voter_id');
+
       const result = await confirmationResult.confirm(verificationCode);
       const user = result.user;
       
@@ -63,9 +67,12 @@ export default function LoginModal({ opened, onClose }) {
       const idToken = await user.getIdToken();
       
       // Send token to our backend to sync votes
-      await authService.login(idToken);
+      await authService.login(idToken, anonymousId);
       
       onClose();
+      
+      // Reload the page to ensure all poll components fetch the correctly merged votes from the database
+      window.location.reload();
     } catch (err) {
       console.error('Error verifying code', err);
       setError(err.message || 'Invalid verification code');
