@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const pollRoutes = require('./routes/pollRoutes');
 const voteRoutes = require('./routes/voteRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 
 app.use('/api/polls', pollRoutes);
 app.use('/api/votes', voteRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

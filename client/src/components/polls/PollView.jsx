@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { Text, Stack, Radio, Checkbox, Card, Loader, Center, Box, Button } from '@mantine/core'
 import { pollService, voteService } from '../../services/api'
 import { useLang } from '../../i18n'
+import { useAuth } from '../../AuthContext'
 import PollResults from './PollResults'
 import SharePoll from './SharePoll'
 import './PollView.css'
 
 function PollView({ pollId, onPollUpdated }) {
   const { t, setLang } = useLang()
+  const { canViewResults, openLoginModal, markPollAsVoted } = useAuth()
   const [poll, setPoll] = useState(null)
   const [loading, setLoading] = useState(true)
   const [hasVoted, setHasVoted] = useState(false)
@@ -62,6 +64,7 @@ function PollView({ pollId, onPollUpdated }) {
       setPoll(updatedPoll)
       setHasVoted(true)
       setVotedOptionIds(optionIds)
+      markPollAsVoted(pollId)
       if (onPollUpdated) onPollUpdated()
     } catch (err) {
       console.error('Failed to vote:', err)
@@ -93,12 +96,21 @@ function PollView({ pollId, onPollUpdated }) {
         </Box>
 
         {hasVoted ? (
-          <PollResults
-            options={poll.options}
-            totalVotes={poll.totalVotes}
-            votedOptionIds={votedOptionIds}
-            pollLanguage={poll.language}
-          />
+          canViewResults(pollId) ? (
+            <PollResults
+              options={poll.options}
+              totalVotes={poll.totalVotes}
+              votedOptionIds={votedOptionIds}
+              pollLanguage={poll.language}
+            />
+          ) : (
+            <Center h={150}>
+              <Stack align="center" gap="xs">
+                <Text fw={500}>Login to see results</Text>
+                <Button onClick={openLoginModal}>Login</Button>
+              </Stack>
+            </Center>
+          )
         ) : (
           <Stack gap="xs">
             {isMultiple && (

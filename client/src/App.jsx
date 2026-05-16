@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AppShell, Group, Text, Button, ActionIcon, Modal } from '@mantine/core'
-import { IconPlus } from '@tabler/icons-react'
+import { IconPlus, IconLogin, IconLogout } from '@tabler/icons-react'
 import PollForm from './components/polls/PollForm'
 import PollCardStack from './components/polls/PollCardStack'
+import LoginModal from './LoginModal'
 import { pollService } from './services/api'
 import { useLang } from './i18n'
+import { useAuth } from './AuthContext'
 import './App.css'
 
 function App() {
@@ -14,6 +16,7 @@ function App() {
   const [polls, setPolls] = useState([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const { lang, setLang, t, dir } = useLang()
+  const { currentUser, logout, loginModalOpened, openLoginModal, closeLoginModal } = useAuth()
 
   // Extract poll ID from URL
   const match = location.pathname.match(/\/poll\/(.+)/)
@@ -76,6 +79,16 @@ function App() {
               <IconPlus size={18} />
             </ActionIcon>
 
+            {currentUser ? (
+              <ActionIcon variant="light" color="red" onClick={logout} title="Logout">
+                <IconLogout size={18} />
+              </ActionIcon>
+            ) : (
+              <ActionIcon variant="light" color="blue" onClick={openLoginModal} title="Login">
+                <IconLogin size={18} />
+              </ActionIcon>
+            )}
+
             <Button
               variant="subtle"
               size="compact-sm"
@@ -113,6 +126,9 @@ function App() {
           <PollForm onPollCreated={handlePollCreated} />
         </div>
       </Modal>
+
+      {/* ── Login Modal ── */}
+      <LoginModal opened={loginModalOpened} onClose={closeLoginModal} />
     </AppShell>
   )
 }

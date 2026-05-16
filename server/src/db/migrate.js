@@ -8,11 +8,17 @@ const runMigrations = async () => {
 
   try {
     await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        phone_number TEXT UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS polls (
         id UUID PRIMARY KEY,
-        title TEXT NOT NULL,
+        title TEXT,
         question TEXT NOT NULL,
-        created_by TEXT NOT NULL,
+        created_by TEXT,
         language TEXT NOT NULL DEFAULT 'en',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

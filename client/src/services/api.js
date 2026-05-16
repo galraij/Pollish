@@ -20,6 +20,10 @@ export function getVoterId() {
   return id;
 }
 
+export function setVoterId(uid) {
+  localStorage.setItem('pollish_voter_id', uid);
+}
+
 // ── Poll API ──
 export const pollService = {
   create: (data) => api.post('/polls', data).then((r) => r.data),
@@ -33,6 +37,12 @@ export const voteService = {
     api.post('/votes', { pollId, optionIds, voterId: getVoterId() }).then((r) => r.data),
   check: (pollId) =>
     api.get(`/votes/check/${pollId}/${getVoterId()}`).then((r) => r.data),
+};
+
+// ── Auth API ──
+export const authService = {
+  login: (idToken) =>
+    api.post('/auth/login', { idToken, anonymousVoterId: getVoterId() }).then((r) => r.data),
 };
 
 export default api;

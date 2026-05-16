@@ -6,14 +6,17 @@ import '@mantine/core/styles.css'
 import './index.css'
 import App from './App.jsx'
 import { LangProvider } from './i18n.jsx'
+import { AuthProvider } from './AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <MantineProvider defaultColorScheme="auto">
       <LangProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </AuthProvider>
       </LangProvider>
     </MantineProvider>
   </StrictMode>,
