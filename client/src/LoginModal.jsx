@@ -75,43 +75,44 @@ export default function LoginModal({ opened, onClose }) {
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title={<Text fw={700}>Login</Text>} centered>
-      <Stack>
-        <Text size="sm" c="dimmed">
-          Sign in to save your votes and see all results.
-        </Text>
-        
-        {error && <Text c="red" size="sm">{error}</Text>}
+    <>
+      <Modal opened={opened} onClose={onClose} title={<Text fw={700}>Login</Text>} centered>
+        <Stack>
+          <Text size="sm" c="dimmed">
+            Sign in to save your votes and see all results.
+          </Text>
+          
+          {error && <Text c="red" size="sm">{error}</Text>}
 
-        {!confirmationResult ? (
-          <>
-            <TextInput
-              label="Phone Number"
-              placeholder="+1 234 567 8900"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.currentTarget.value)}
-              description="Include country code (e.g. +1)"
-            />
-            <Button loading={loading} onClick={handleSendCode}>
-              Send SMS Code
-            </Button>
-          </>
-        ) : (
-          <>
-            <TextInput
-              label="Verification Code"
-              placeholder="123456"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.currentTarget.value)}
-            />
-            <Button loading={loading} onClick={handleVerifyCode}>
-              Verify & Login
-            </Button>
-          </>
-        )}
-        
-        <div id="recaptcha-container"></div>
-      </Stack>
-    </Modal>
+          {!confirmationResult ? (
+            <>
+              <TextInput
+                label="Phone Number"
+                placeholder="+1 234 567 8900"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.currentTarget.value)}
+                description="Include country code (e.g. +1)"
+              />
+              <Button loading={loading} onClick={handleSendCode}>
+                Send SMS Code
+              </Button>
+            </>
+          ) : (
+            <>
+              <TextInput
+                label="Verification Code"
+                placeholder="123456"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.currentTarget.value)}
+              />
+              <Button loading={loading} onClick={handleVerifyCode}>
+                Verify & Login
+              </Button>
+            </>
+          )}
+        </Stack>
+      </Modal>
+      <div id="recaptcha-container"></div>
+    </>
   );
 }
